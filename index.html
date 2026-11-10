@@ -65,8 +65,8 @@ details.faq{background:#0e231a;border:1px solid var(--line);border-radius:12px;p
 <div class="card" style="margin-top:12px" id="alarmCard"><b>⏰ Alarm &amp; Notifikasi Sholat</b>
 <p class="small" id="alStatus">Alarm belum aktif</p>
 <div class="chips" id="alChips"></div>
-<label class="small mt" style="display:block">SUARA ALARM</label><select id="alSnd" onchange="alCfg()"><option value="beep">Bunyi alarm (beep)</option><option value="quran">Bacaan Al-Qur'an (Al-Fatihah, Alafasy)</option><option value="adzan">Adzan: file sendiri / URL mp3</option></select>
-<div id="alAdz" class="hidden"><input id="alUrl" class="mt" placeholder="URL file adzan (.mp3)" onchange="alCfg()"><input id="alFile" type="file" accept="audio/*" class="mt" onchange="alFileSet(this)"><p class="small">File dari HP hanya berlaku selama halaman terbuka; URL tersimpan permanen. Jika file gagal diputar, alarm otomatis memakai beep.</p></div>
+<label class="small mt" style="display:block">SUARA ALARM</label><select id="alSnd" onchange="alCfg()"><option value="beep">Bunyi alarm (beep)</option><option value="quran">Bacaan Al-Qur'an (Al-Fatihah, Alafasy)</option><option value="online">Adzan online (otomatis, coba beberapa sumber)</option><option value="adzan">Adzan: file sendiri / URL mp3</option></select>
+<div id="alAdz" class="hidden"><input id="alUrl" class="mt" placeholder="URL file adzan (.mp3)" onchange="alCfg()"><input id="alFile" type="file" accept="audio/*" class="mt" onchange="alFileSet(this)"><p class="small" id="alFileInfo">Pilih file mp3 adzan dari HP sekali saja; file tersimpan permanen di app ini. Jika gagal diputar, alarm otomatis memakai beep.</p></div>
 <label class="small mt" style="display:block">PENGINGAT SEBELUM WAKTU</label><select id="alPre" onchange="alCfg()"><option value="0">Hanya saat masuk waktu</option><option value="5">+ 5 menit sebelum</option><option value="10">+ 10 menit sebelum</option></select>
 <label class="small mt" style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="alWake" style="width:auto" onchange="alCfg()"> Jaga layar tetap menyala (supaya alarm tidak terlewat)</label>
 <div class="row mt"><button id="alToggle" onclick="alToggle()">Aktifkan alarm</button><button class="secondary" onclick="alTest()">🔔 Tes alarm</button></div>
@@ -110,7 +110,7 @@ details.faq{background:#0e231a;border:1px solid var(--line);border-radius:12px;p
    Ganti isi GROQ_API_KEY di bawah kalau mau pakai key lain.
    Key berawalan "gsk_" = Groq (api.groq.com)
    ============================================================ */
-const GROQ_API_KEY='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';
+const GROQ_API_KEY='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';
 const GROQ_URL='https://api.groq.com/openai/v1/chat/completions';
 </script>
 <script>
@@ -135,7 +135,7 @@ try{let t=await callAI([{role:'system',content:system},...chatHist.slice(-10)]);
 function addBubble(t,c){let d=document.createElement('div');d.className='bubble '+c;d.textContent=t;$('messages').appendChild(d);$('messages').scrollTop=$('messages').scrollHeight}
 $('prompt').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChat()}});
 const prayerNames={Fajr:'Subuh',Dhuhr:'Dzuhur',Asr:'Ashar',Maghrib:'Maghrib',Isha:'Isya'};
-async function loadPrayer(){try{let url='https://api.aladhan.com/v1/timingsByCity/'+new Date(Date.now()+7*36e5).toISOString().slice(0,10).split('-').reverse().join('-')+'?city=Prabumulih&country=Indonesia&state=South%20Sumatra&method=20';let r=await fetch(url),j=await r.json();if(j.code!==200)throw Error('Jadwal tidak tersedia');let t=j.data.timings;let date=j.data.date.readable;$('prayerDate').textContent=date+' · WIB';$('todayDate').textContent=date;$('prayerList').innerHTML='';Object.keys(prayerNames).forEach(k=>{let el=document.createElement('div');el.className='prayer';el.innerHTML='<span>'+prayerNames[k]+'</span><b>'+t[k]+'</b>';$('prayerList').appendChild(el)});let now=new Date(),next=Object.keys(prayerNames).find(k=>{let [h,m]=t[k].split(':').map(Number);let d=new Date();d.setHours(h,m,0,0);return d>now});$('nextPrayer').textContent=next?prayerNames[next]+' · '+t[next]:'Jadwal hari ini selesai';window.prayerTimes=t;onPT(t)}catch(e){$('prayerList').textContent='Tidak dapat memuat jadwal. Periksa koneksi internet.';onPTFail()}}
+async function loadPrayer(){try{let url='https://api.aladhan.com/v1/timingsByCity/'+new Date(Date.now()+7*36e5).toISOString().slice(0,10).split('-').reverse().join('-')+'?city=Prabumulih&country=Indonesia&state=South%20Sumatra&method=20';let r=await fetch(url),j=await r.json();if(j.code!==200)throw Error('Jadwal tidak tersedia');let t=j.data.timings;let date=j.data.date.readable;$('prayerDate').textContent=date+' · WIB';$('todayDate').textContent=date;$('prayerList').innerHTML='';Object.keys(prayerNames).forEach(k=>{let el=document.createElement('div');el.className='prayer';el.innerHTML='<span>'+prayerNames[k]+'</span><b>'+t[k]+'</b>';$('prayerList').appendChild(el)});let now=new Date(),next=Object.keys(prayerNames).find(k=>{let [h,m]=t[k].split(':').map(Number);let d=new Date();d.setHours(h,m,0,0);return d>now});$('nextPrayer').textContent=next?prayerNames[next]+' · '+t[next]:'Jadwal hari ini selesai';window.prayerTimes=t;window.onPT&&onPT(t)}catch(e){$('prayerList').textContent='Tidak dapat memuat jadwal. Periksa koneksi internet.';window.onPTFail?onPTFail():window.ptFailed=1}}
 const surahNames=['Al-Fatihah','Al-Baqarah',"Ali 'Imran",'An-Nisa',"Al-Ma'idah",'Al-An’am','Al-A’raf','Al-Anfal','At-Taubah','Yunus','Hud','Yusuf',"Ar-Ra'd",'Ibrahim','Al-Hijr','An-Nahl','Al-Isra',"Al-Kahf",'Maryam','Ta-Ha',"Al-Anbiya'",'Al-Hajj',"Al-Mu’minun",'An-Nur','Al-Furqan',"Asy-Syu'ara",'An-Naml','Al-Qasas',"Al-'Ankabut",'Ar-Rum',"Luqman",'As-Sajdah','Al-Ahzab','Saba','Fatir','Ya-Sin','As-Saffat','Sad','Az-Zumar','Ghafir','Fussilat','Asy-Syura','Az-Zukhruf','Ad-Dukhan','Al-Jasiyah','Al-Ahqaf','Muhammad','Al-Fath','Al-Hujurat','Qaf','Az-Zariyat','At-Tur','An-Najm','Al-Qamar','Ar-Rahman','Al-Waqi’ah','Al-Hadid','Al-Mujadilah','Al-Hasyr','Al-Mumtahanah','As-Saff','Al-Jumu’ah','Al-Munafiqun','At-Taghabun','At-Talaq','At-Tahrim','Al-Mulk','Al-Qalam','Al-Haqqah',"Al-Ma'arij",'Nuh','Al-Jinn','Al-Muzzammil','Al-Muddassir','Al-Qiyamah','Al-Insan','Al-Mursalat','An-Naba','An-Nazi’at','Abasa','At-Takwir','Al-Infitar','Al-Mutaffifin','Al-Insyiqaq','Al-Buruj','At-Tariq',"Al-A'la",'Al-Gasyiyah','Al-Fajr','Al-Balad','Asy-Syams','Al-Lail','Ad-Duha','Asy-Syarh','At-Tin','Al-Alaq','Al-Qadr','Al-Bayyinah','Az-Zalzalah','Al-Adiyat',"Al-Qari'ah",'At-Takasur','Al-Asr','Al-Humazah','Al-Fil','Quraisy','Al-Maun','Al-Kausar','Al-Kafirun','An-Nasr','Al-Lahab','Al-Ikhlas','Al-Falaq','An-Nas'];
 let currentAudioList=[],audioIndex=0;
 function initJuz(){for(let i=1;i<=30;i++){let b=document.createElement('button');b.className='secondary';b.textContent='Juz '+i;b.onclick=()=>loadJuz(i);$('juzGrid').appendChild(b)}}
@@ -208,23 +208,29 @@ drawMoods();drawDz();tsDraw();ksDraw();drawQ();zk();
 <script>
 /* ===== ALARM & NOTIFIKASI SHOLAT ===== */
 const wib=()=>{let x=new Date(Date.now()+7*36e5);return{d:x.toISOString().slice(0,10),s:x.getUTCHours()*3600+x.getUTCMinutes()*60+x.getUTCSeconds()}};
-const AL=Object.assign({on:false,p:{Fajr:1,Dhuhr:1,Asr:1,Maghrib:1,Isha:1},snd:'beep',url:'',pre:0,wake:false},LS('jeff_alarm')||{});
+const AL=Object.assign({on:false,p:{Fajr:1,Dhuhr:1,Asr:1,Maghrib:1,Isha:1},snd:'online',url:'',pre:0,wake:false},LS('jeff_alarm')||{});
 let alCtx=null,alBeepT=null,alVibT=null,alAuto=null,alAud=new Audio(),alFileUrl='',alWL=null,alQ=[],alQi=0,alFired=LS('jeff_fired')||{},PTD=null,alStat='';
 const SIL='data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
 const alSave=()=>LS('jeff_alarm',AL);
 function alUnlock(){try{alCtx=alCtx||new(window.AudioContext||window.webkitAudioContext)();alCtx.resume();alAud.src=SIL;alAud.play().catch(()=>{})}catch(e){}}
 function beepOnce(){if(!alCtx)return;let o=alCtx.createOscillator(),g=alCtx.createGain(),t=alCtx.currentTime;o.type='sine';o.frequency.value=880;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.5,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+.45);o.connect(g);g.connect(alCtx.destination);o.start();o.stop(t+.5)}
 function startBeep(){clearInterval(alBeepT);beepOnce();alBeepT=setInterval(()=>{beepOnce();setTimeout(beepOnce,250)},1200)}
-function alPlay(){let src=alFileUrl||AL.url;alQ=AL.snd==='quran'?[1,2,3,4,5,6,7].map(n=>'https://cdn.islamic.network/quran/audio/128/ar.alafasy/'+n+'.mp3'):(AL.snd==='adzan'&&src?[src]:[]);
-if(!alQ.length)return startBeep();alQi=0;alAud.loop=false;alAud.onerror=startBeep;alAud.onended=()=>{alQi++;if(alQi<alQ.length){alAud.src=alQ[alQi];alAud.play().catch(startBeep)}};alAud.src=alQ[0];alAud.play().catch(startBeep)}
-function alStop(){clearInterval(alBeepT);clearInterval(alVibT);clearTimeout(alAuto);alAud.onerror=null;alAud.onended=null;alAud.pause();if(navigator.vibrate)navigator.vibrate(0);$('alOverlay').classList.add('hidden')}
+const ADZ=['https://cdn.aladhan.com/audio/adhans/a1.mp3','https://cdn.aladhan.com/audio/adhan/a1.mp3','https://www.islamcan.com/audio/adhan/azan1.mp3'];let alTm=null;
+function alPlay(){let src=alFileUrl||AL.url,alt=false;clearTimeout(alTm);
+if(AL.snd==='quran')alQ=[1,2,3,4,5,6,7].map(n=>'https://cdn.islamic.network/quran/audio/128/ar.alafasy/'+n+'.mp3');else if(AL.snd==='adzan'&&src){alQ=[src];alt=true}else if(AL.snd==='online'){alQ=alFileUrl?[alFileUrl,...ADZ]:ADZ;alt=true}else alQ=[];
+if(!alQ.length)return startBeep();alQi=0;alAud.loop=false;
+const nx=()=>{clearTimeout(alTm);alQi++;if(alQi<alQ.length){go()}else startBeep()},go=()=>{alAud.src=alQ[alQi];alAud.play().catch(e=>{if(e&&e.name==='NotAllowedError')startBeep()});alTm=setTimeout(()=>{if(alAud.paused||alAud.readyState<3)nx()},8000)};
+alAud.onerror=nx;alAud.onplaying=()=>clearTimeout(alTm);alAud.onended=()=>{if(alt)return;alQi++;if(alQi<alQ.length)go()};go()}
+function alStop(){clearTimeout(alTm);clearInterval(alBeepT);clearInterval(alVibT);clearTimeout(alAuto);alAud.onerror=null;alAud.onended=null;alAud.onplaying=null;alAud.pause();if(navigator.vibrate)navigator.vibrate(0);$('alOverlay').classList.add('hidden')}
 function alNotify(t,b){try{if(window.Notification&&Notification.permission==='granted'){try{new Notification(t,{body:b,requireInteraction:true,tag:'sholat'})}catch(e){navigator.serviceWorker&&navigator.serviceWorker.getRegistration().then(r=>r&&r.showNotification(t,{body:b,vibrate:[500,200,500]}))}}}catch(e){}}
 function alRing(name,pre,test){alStop();try{dzAudio.pause();stopAudio()}catch(e){}
 let tt=pre?pre+' menit lagi masuk '+name:'Waktu '+name+' telah tiba',bb=test?'Ini hanya tes alarm.':'Prabumulih (WIB). Yuk bersiap sholat.';$('alTitle').textContent=tt;$('alBody').textContent=bb;$('alOverlay').classList.remove('hidden');alNotify(tt,bb);
 if(pre){beepOnce();setTimeout(beepOnce,300);if(navigator.vibrate)navigator.vibrate([300,150,300]);alAuto=setTimeout(alStop,15000)}
 else{alPlay();if(navigator.vibrate){navigator.vibrate([500,200,500,200,500]);alVibT=setInterval(()=>navigator.vibrate([500,200,500,200,500]),4000)}alAuto=setTimeout(alStop,10*60000)}}
 function alTest(){alUnlock();if(window.Notification&&Notification.permission==='default')Notification.requestPermission();setTimeout(()=>alRing('Dzuhur',0,true),200)}
-function alFileSet(i){if(i.files[0]){alFileUrl=URL.createObjectURL(i.files[0])}}
+const idb=()=>new Promise((res,rej)=>{let r=indexedDB.open('jeff_adzan',1);r.onupgradeneeded=()=>r.result.createObjectStore('f');r.onsuccess=()=>res(r.result);r.onerror=rej});
+async function alFileSet(i){let f=i.files[0];if(!f)return;alFileUrl=URL.createObjectURL(f);$('alFileInfo').textContent='✅ File adzan dipakai: '+f.name;try{let d=await idb();d.transaction('f','readwrite').objectStore('f').put(f,'adzan')}catch(e){$('alFileInfo').textContent+=' (tidak bisa disimpan permanen)'}}
+(async()=>{try{let d=await idb(),q=d.transaction('f').objectStore('f').get('adzan');q.onsuccess=()=>{if(q.result){alFileUrl=URL.createObjectURL(q.result);$('alFileInfo').textContent='✅ File adzan tersimpan: '+(q.result.name||'adzan')}}}catch(e){}})();
 function alCfg(){AL.snd=$('alSnd').value;AL.url=$('alUrl').value.trim();AL.pre=+$('alPre').value;AL.wake=$('alWake').checked;$('alAdz').classList.toggle('hidden',AL.snd!=='adzan');alSave();alWake();alDraw()}
 async function alToggle(){if(!AL.on){alUnlock();if(window.Notification&&Notification.permission==='default'){try{await Notification.requestPermission()}catch(e){}}AL.on=true}else AL.on=false;alSave();alWake();alDraw();alTick()}
 async function alWake(){try{if(AL.on&&AL.wake&&'wakeLock'in navigator&&!alWL){alWL=await navigator.wakeLock.request('screen');alWL.addEventListener('release',()=>alWL=null)}else if((!AL.on||!AL.wake)&&alWL){await alWL.release();alWL=null}}catch(e){}}
@@ -240,7 +246,7 @@ else if(AL.pre&&n.s>=t-AL.pre*60&&n.s<t-AL.pre*60+90&&!alFired[p]){alFired[p]=1;
 function onPT(t){PTD=wib().d;LS('jeff_pt',{d:PTD,t});alTick()}
 function onPTFail(){let c=LS('jeff_pt');if(c&&c.d===wib().d){window.prayerTimes=c.t;PTD=c.d;$('prayerList').innerHTML='';Object.keys(prayerNames).forEach(k=>{let e=document.createElement('div');e.className='prayer';e.innerHTML='<span>'+prayerNames[k]+'</span><b>'+c.t[k]+'</b>';$('prayerList').appendChild(e)});$('prayerDate').textContent='Jadwal tersimpan (offline) · WIB'}}
 $('alSnd').value=AL.snd;$('alUrl').value=AL.url;$('alPre').value=AL.pre;$('alWake').checked=AL.wake;$('alAdz').classList.toggle('hidden',AL.snd!=='adzan');alDraw();
-setInterval(alTick,1000);document.addEventListener('visibilitychange',()=>{if(!document.hidden){alWake();alTick()}});
+if(window.ptFailed)onPTFail();if(window.prayerTimes)onPT(window.prayerTimes);setInterval(alTick,1000);document.addEventListener('visibilitychange',()=>{if(!document.hidden){alWake();alTick()}});
 document.addEventListener('pointerdown',()=>{if(AL.on&&!alCtx)alUnlock()},{once:true});if(AL.on)alWake();
 /* ===== AMAL HARIAN ===== */
 const HB=['Sholat Subuh','Sholat Dzuhur','Sholat Ashar','Sholat Maghrib','Sholat Isya','Sholat sunnah',"Baca Al-Qur'an 1 halaman",'Sedekah','Istighfar 100x'];
